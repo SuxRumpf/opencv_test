@@ -3,6 +3,8 @@
 #include <fstream>
 #include <opencv2/opencv.hpp>
 
+
+
 void load_intrinsic_params(float * intrinsic_matrix, float * distortion_coeffs){
     std::ifstream inFile("../intrinsic_test_0.txt");
     if (!inFile.is_open()) {

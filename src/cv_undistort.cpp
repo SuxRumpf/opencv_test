@@ -2,7 +2,7 @@
 cv::Mat cameraMatrix(3, 3, CV_64F);
 cv::Mat distCoeffs(1, 5, CV_64F);
 
-int main(){
+void run_undistort_test_without_T_API() {
     auto start = std::chrono::high_resolution_clock::now();
 
     float intrinisic_tmp[9];
@@ -24,7 +24,8 @@ int main(){
     //cv::VideoCapture cap = cv::VideoCapture(0, cv::CAP_GSTREAMER);
     cv::Mat img;
     cv::Mat dst0;
-    std::cout << "INIT TIME: " << (std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - start).count())  << std::endl;
+    std::cout << "INIT TIME: " << (std::chrono::duration_cast<std::chrono::microseconds>(
+            std::chrono::high_resolution_clock::now() - start).count()) << std::endl;
 
     //cv::imshow("sdsd image", img);
     //cv::waitKey(0);
@@ -33,18 +34,21 @@ int main(){
      * Da undistort eine Verbindung aus initUndistortRectifyMap und remap ist, muss jedes mal initUndistortRectifyMap neu
      * ausgeführt werden weshalb hier große Performanceprobleme entstehen können
      */
-    std::cout << "Normale Undistortion: " <<std::endl;
+    std::cout << "Normale Undistortion: " << std::endl;
 
     auto start_ges_loop_0 = std::chrono::high_resolution_clock::now();
     for (int x = 0; x < 10; x++) {
-        img= cv::imread("../test.png");
+        img = cv::imread("../test.png");
 
         auto start_undistort = std::chrono::high_resolution_clock::now();
         cv::undistort(img, dst0, cameraMatrix, distCoeffs);
 
-        std::cout << "undistort: " << (std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - start_undistort).count())  << std::endl;
-        std::cout << "Durchschnittliche Laufzeit der normalen Undistortion(" << x <<". iteration): " <<
-            (double)(std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - start_ges_loop_0).count()) / ((double)x+1.0) << std::endl;
+        std::cout << "undistort: " << (std::chrono::duration_cast<std::chrono::microseconds>(
+                std::chrono::high_resolution_clock::now() - start_undistort).count()) << std::endl;
+        std::cout << "Durchschnittliche Laufzeit der normalen Undistortion(" << x << ". iteration): " <<
+                  (double) (std::chrono::duration_cast<std::chrono::microseconds>(
+                          std::chrono::high_resolution_clock::now() - start_ges_loop_0).count()) / ((double) x + 1.0)
+                  << std::endl;
     }
 
 
@@ -52,59 +56,75 @@ int main(){
     /*
      * Hier wird nun initUndistortRectifyMap getrennt von remap und nur einmal vor dem Start aufgerufen
      */
-    std::cout << "\n\nGesplittete Undistortion: " <<std::endl;
+    std::cout << "\n\nGesplittete Undistortion: " << std::endl;
     cv::Mat map1, map2;
     auto start_ges_loop_1 = std::chrono::high_resolution_clock::now();
-    for (int x = 0; x < 50; x++) {
-        img= cv::imread("../test.png");
+    for (int x = 0; x < 25; x++) {
+        img = cv::imread("../test.png");
 
-        if (x == 0){
+        if (x == 0) {
             auto start_initUndistortRectifyMap = std::chrono::high_resolution_clock::now();
             auto size_of_img = cv::Size(img.cols, img.rows);
             std::cout << "IMG Size: " << size_of_img << std::endl;
-            cv::initUndistortRectifyMap(cameraMatrix, distCoeffs, cv::Mat(), cameraMatrix, size_of_img, CV_32FC1, map1, map2);
+            cv::initUndistortRectifyMap(cameraMatrix, distCoeffs, cv::Mat(), cameraMatrix, size_of_img, CV_32FC1, map1,
+                                        map2);
             std::cout << "initUndistortRectifyMap: " <<
-                (std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - start_initUndistortRectifyMap).count())  << std::endl;
+                      (std::chrono::duration_cast<std::chrono::microseconds>(
+                              std::chrono::high_resolution_clock::now() - start_initUndistortRectifyMap).count())
+                      << std::endl;
         }
 
         auto start_undistort = std::chrono::high_resolution_clock::now();
         cv::remap(img, dst1, map1, map2, cv::INTER_CUBIC);
-        std::cout << "undistort: " << (std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - start_undistort).count())  << std::endl;
-        std::cout << "Durchschnittliche Laufzeit der getrennten Undistortion(" <<x <<". iteration): " <<
-            (double)(std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - start_ges_loop_1).count()) / ((double)x+1.0)  << std::endl;
+        std::cout << "undistort: " << (std::chrono::duration_cast<std::chrono::microseconds>(
+                std::chrono::high_resolution_clock::now() - start_undistort).count()) << std::endl;
+        std::cout << "Durchschnittliche Laufzeit der getrennten Undistortion(" << x << ". iteration): " <<
+                  (double) (std::chrono::duration_cast<std::chrono::microseconds>(
+                          std::chrono::high_resolution_clock::now() - start_ges_loop_1).count()) / ((double) x + 1.0)
+                  << std::endl;
     }
 
     /*
     * Hier wird wieder initUndistortRectifyMap getrennt von remap allerdings diesmal mit fixed point maps (CV_16SC2) statt CV_32FC1
     */
-    std::cout << "\n\nGesplittete Undistortion: " <<std::endl;
+    std::cout << "\n\nGesplittete Undistortion: " << std::endl;
     auto start_ges_loop_2 = std::chrono::high_resolution_clock::now();
-    for (int x = 0; x < 50; x++) {
-        img= cv::imread("../test.png");
+    for (int x = 0; x < 25; x++) {
+        img = cv::imread("../test.png");
 
-        if (x == 0){
+        if (x == 0) {
             auto start_initUndistortRectifyMap = std::chrono::high_resolution_clock::now();
             auto size_of_img = cv::Size(img.cols, img.rows);
             std::cout << "IMG Size: " << size_of_img << std::endl;
-            cv::initUndistortRectifyMap(cameraMatrix, distCoeffs, cv::Mat(), cameraMatrix, size_of_img, CV_16SC2, map1, map2);
+            cv::initUndistortRectifyMap(cameraMatrix, distCoeffs, cv::Mat(), cameraMatrix, size_of_img, CV_16SC2, map1,
+                                        map2);
             std::cout << "initUndistortRectifyMap: " <<
-                      (std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - start_initUndistortRectifyMap).count())  << std::endl;
+                      (std::chrono::duration_cast<std::chrono::microseconds>(
+                              std::chrono::high_resolution_clock::now() - start_initUndistortRectifyMap).count())
+                      << std::endl;
         }
 
         auto start_undistort = std::chrono::high_resolution_clock::now();
         cv::remap(img, dst1, map1, map2, cv::INTER_CUBIC);
-        std::cout << "undistort: " << (std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - start_undistort).count())  << std::endl;
-        std::cout << "Durchschnittliche Laufzeit der getrennten Undistortion(" <<x <<". iteration): " <<
-                  (double)(std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - start_ges_loop_2).count()) / ((double)x+1.0)  << std::endl;
+        std::cout << "undistort: " << (std::chrono::duration_cast<std::chrono::microseconds>(
+                std::chrono::high_resolution_clock::now() - start_undistort).count()) << std::endl;
+        std::cout << "Durchschnittliche Laufzeit der getrennten Undistortion(" << x << ". iteration): " <<
+                  (double) (std::chrono::duration_cast<std::chrono::microseconds>(
+                          std::chrono::high_resolution_clock::now() - start_ges_loop_2).count()) / ((double) x + 1.0)
+                  << std::endl;
     }
+}
 
+void run_undistort_test_with_T_API(){
     /*
      * Normale undistort function aber mit T-API
      */
     std::cout << "Normale Undistortion mit T-API: " <<std::endl;
+    cv::Mat img, map1, map2;
+
     cv::UMat uimg, udst0;
     auto start_ges_loop_3 = std::chrono::high_resolution_clock::now();
-    for (int x = 0; x < 50; x++) {
+    for (int x = 0; x < 25; x++) {
         cv::imread("../test.png").copyTo(uimg);
 
         auto start_undistort = std::chrono::high_resolution_clock::now();
@@ -121,7 +141,7 @@ int main(){
     std::cout << "\n\nGesplittete Undistortion: " <<std::endl;
     cv::UMat uimg1, udst1;
     auto start_ges_loop_4 = std::chrono::high_resolution_clock::now();
-    for (int x = 0; x < 50; x++) {
+    for (int x = 0; x < 25; x++) {
         cv::imread("../test.png").copyTo(uimg1);
 
         if (x == 0){
@@ -168,5 +188,10 @@ int main(){
 
     cv::imshow("grayscale image", img);
     cv::waitKey(0);
+}
+
+
+int main(int argc, char *argv[]){
+    run_undistort_test_without_T_API();
     return 0;
 }

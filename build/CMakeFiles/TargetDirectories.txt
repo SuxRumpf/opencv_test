@@ -1,3 +1,4 @@
-/home/agx/opencv_test/build/CMakeFiles/opencv_test.dir
-/home/agx/opencv_test/build/CMakeFiles/edit_cache.dir
-/home/agx/opencv_test/build/CMakeFiles/rebuild_cache.dir
+/home/eu05c-22/opencv_test/build/CMakeFiles/opencv_test.dir
+/home/eu05c-22/opencv_test/build/CMakeFiles/gstreamer_test.dir
+/home/eu05c-22/opencv_test/build/CMakeFiles/edit_cache.dir
+/home/eu05c-22/opencv_test/build/CMakeFiles/rebuild_cache.dir
